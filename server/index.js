@@ -8,13 +8,13 @@ import helmet, { crossOriginResourcePolicy } from "helmet";
 import morgan from "morgan";
 import path from "path";
 import { fileURLToPath } from "url";
-import authRoutes from "./routes/auth.js";
+import authRoutes from "./Routes/auth.js";
 import postRoutes from "./Routes/posts.js";
 import userRoutes from "./Routes/users.js";
 import { register } from "./controller/auth.js";
 import { verifytoken } from "./middleware/auth.js";
 import { createPost } from "./controller/posts.js";
-import User from "./model/User.js";
+import User from "./model/user.js";
 import Post from "./model/posts.js";
 import { users, posts } from "./data/index.js";
 
@@ -50,7 +50,7 @@ app.post("/posts", verifytoken, upload.single("picture"), createPost);
 
 //Routes
 app.use("/auth", authRoutes);
-app.use("/Users", userRoutes);
+app.use("/users", userRoutes);
 app.use("/posts", postRoutes);
 
 //mongoose setup

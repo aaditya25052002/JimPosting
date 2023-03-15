@@ -7,10 +7,12 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { themeSettings } from "./theme";
 import LoginPage from "./Scenes/LoginPage";
 import Homepage from "./Scenes/Homepage";
+import ProfilePage from "./Scenes/Profilepage";
+
 const App = () => {
   const mode = useSelector((state) => state.mode);
   const theme = useMemo(() => createTheme(themeSettings(mode)), [mode]);
-
+  const isAuth = Boolean(useSelector((state) => state.token));
   return (
     <div className="app">
       <BrowserRouter>
@@ -18,7 +20,16 @@ const App = () => {
           <CssBaseline />
           <Routes>
             <Route exact path="/" element={<LoginPage />} />
-            <Route exact path="/home" element={<Homepage />} />
+            <Route
+              exact
+              path="/home"
+              element={isAuth ? <Homepage /> : <Navigate to="/" />}
+            />
+            <Route
+              exact
+              path="/profile/:userId"
+              element={isAuth ? <ProfilePage /> : <Navigate to="/" />}
+            />
           </Routes>
         </ThemeProvider>
       </BrowserRouter>

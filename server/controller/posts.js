@@ -1,5 +1,5 @@
 import Post from "../model/posts.js";
-import User from "../model/User.js";
+import User from "../model/user.js";
 
 //createpost
 
