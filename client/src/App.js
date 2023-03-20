@@ -23,7 +23,8 @@ const App = () => {
             <Route
               exact
               path="/home"
-              element={isAuth ? <Homepage /> : <Navigate to="/" />}
+              // element={isAuth ? <Homepage /> : <Navigate to="/" />}
+              element={<Homepage />}
             />
             <Route
               exact
