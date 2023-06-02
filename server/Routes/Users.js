@@ -13,6 +13,6 @@ router.get("/:id", verifytoken, getUser);
 router.get("/:id/friends", verifytoken, getUserFriends);
 
 //Update
-router.get("/:id/:friendid", verifytoken, addRemoveFriend);
+router.patch("/:id/:friendId", verifytoken, addRemoveFriend);
 
 export default router;

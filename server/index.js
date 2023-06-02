@@ -24,12 +24,16 @@ const __dirname = path.dirname(__filename);
 dotenv.config();
 const app = express();
 app.use(express.json());
-app.use(helmet());
-app.use(crossOriginResourcePolicy({ policy: "cross-origin" }));
+// app.use(helmet());
+// app.use(crossOriginResourcePolicy({ policy: "cross-origin" }));
+app.use(
+  cors({
+    origin: "*",
+  })
+);
 app.use(morgan("common"));
 app.use(bodyParser.json({ limit: "30mb", extended: true }));
 app.use(bodyParser.urlencoded({ limit: "30mb", extended: true }));
-app.use(cors());
 app.use("/assets", express.static(path.join(__dirname, "public/assets")));
 
 //File Storage
@@ -41,7 +45,6 @@ const storage = multer.diskStorage({
     cb(null, file.originalname);
   },
 });
-
 const upload = multer({ storage });
 
 // Routes with file
@@ -56,13 +59,15 @@ app.use("/posts", postRoutes);
 //mongoose setup
 const PORT = process.env.PORT || 6001;
 mongoose
-  .connect(process.env.MONGO_URL, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
+  .connect("mongodb://0.0.0.0:27017/Social-Media")
   .then(() => {
     app.listen(PORT, () => console.log(`server running on port ${PORT}`));
   })
   .catch((error) => {
     console.log(`${error} did not connect`);
   });
+
+// {
+//   useNewUrlParser: true,
+//   useUnifiedTopology: true,
+// }

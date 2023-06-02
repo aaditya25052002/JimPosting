@@ -5,7 +5,8 @@ import User from "../model/user.js";
 
 export const createPost = async (req, res) => {
   try {
-    const { userId, description, pitcurePath } = req.body;
+    const { userId, description } = req.body;
+    const { filename } = req.file;
     const user = await User.findById(userId);
 
     const newPost = new Post({
@@ -14,8 +15,8 @@ export const createPost = async (req, res) => {
       lastName: user.lastName,
       location: user.location,
       description,
-      userPicturePath: user.userPitcurePath,
-      pitcurePath,
+      userPicturePath: user.picturePath,
+      picturePath: filename,
       likes: {},
       comments: [],
     });
@@ -23,7 +24,7 @@ export const createPost = async (req, res) => {
     await newPost.save();
     const post = await Post.find(); // add the new post to all the post
     res.status(201).json(post);
-  } catch {
+  } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
@@ -32,7 +33,7 @@ export const getFeedPosts = async (req, res) => {
   try {
     const post = await Post.find(); // add the new post to all the post
     res.status(201).json(post);
-  } catch {
+  } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
@@ -42,7 +43,7 @@ export const getUserPosts = async (req, res) => {
     const { userId } = req.params;
     const post = await Post.find({ userId }); // add the new post to all the post
     res.status(201).json(post);
-  } catch {
+  } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
@@ -54,21 +55,22 @@ export const likePost = async (req, res) => {
     const { id } = req.params;
     const { userId } = req.body;
     const post = await Post.findById(id);
-    const isLiked = await post.likes.get(userId);
+    const isLiked = post.likes.get(userId);
+
     if (isLiked) {
       post.likes.delete(userId);
     } else {
       post.likes.set(userId, true);
     }
 
-    const updatedPosts = await Post.findByIdAndUpdate(
+    const updatedPost = await Post.findByIdAndUpdate(
       id,
-      { like: post.likes },
+      { likes: post.likes },
       { new: true }
     );
 
-    res.status(201).json(updatedPosts);
-  } catch {
-    res.status(500).json({ error: error.message });
+    res.status(200).json(updatedPost);
+  } catch (err) {
+    res.status(404).json({ message: err.message });
   }
 };

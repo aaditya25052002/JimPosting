@@ -15,6 +15,7 @@ import { useDispatch } from "react-redux";
 import { setLogin } from "../../state";
 import Dropzone from "react-dropzone";
 import FlexBetween from "../../Components/FlexBetween";
+import axios from "axios";
 
 const registerSchema = yup.object().shape({
   firstName: yup.string().required("required"),
@@ -23,7 +24,7 @@ const registerSchema = yup.object().shape({
   password: yup.string().required("required"),
   location: yup.string().required("required"),
   occupation: yup.string().required("required"),
-  pitcure: yup.string().required("required"),
+  picture: yup.string().required("required"),
 });
 
 const loginSchema = yup.object().shape({
@@ -38,7 +39,7 @@ const initialValuesRegister = {
   password: "",
   location: "",
   occupation: "",
-  pitcure: "",
+  picture: "",
 };
 
 const initialValuesLogin = {
@@ -50,50 +51,61 @@ const Form = () => {
   const [pageType, setPageType] = useState("login");
   const { palette } = useTheme();
   const dispatch = useDispatch();
-  const Navigate = useNavigate();
-  const isNonMobile = useMediaQuery("(min-width: 600px)");
+  const navigate = useNavigate();
+  const isNonMobile = useMediaQuery("(min-width:600px)");
   const isLogin = pageType === "login";
   const isRegister = pageType === "register";
 
   const register = async (values, onSubmitProps) => {
+    console.log("hi");
     const formData = new FormData();
     for (let value in values) {
       formData.append(value, values[value]);
     }
-    formData.append("pitcurePath", values.pitcure.name);
+    console.log(values.picture);  
+    formData.append("picturePath", values.picture.path); 
 
-    const savedUserResponse = await fetch(
-      "http://localhost:3001/auth/register",
-      {
-        method: "POST",
-        body: "formData",
+    try {
+      const response = await axios.post(
+        "http://localhost:3001/auth/register",
+        formData
+      );
+      const savedUser = response.data;
+
+      onSubmitProps.resetForm();
+
+      if (savedUser) {
+        setPageType("login");
       }
-    );
-    const savedUser = await savedUserResponse.json();
-    onSubmitProps.resetForm();
-
-    if (savedUser) {
-      setPageType("login");
+    } catch (error) {
+      console.error(error);
     }
   };
 
   const login = async (values, onSubmitProps) => {
-    const loggedInResponse = await fetch("http://localhost:3001/auth/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(values),
-    });
-    const loggedIn = await loggedInResponse.json();
-    onSubmitProps.resetForm();
-
-    if (loggedIn) {
-      dispatch(
-        setLogin({
-          user: loggedIn.user,
-          token: loggedIn.token,
-        })
+    try {
+      const response = await axios.post(
+        "http://localhost:3001/auth/login",
+        values,
+        {
+          headers: { "Content-Type": "application/json" },
+        }
       );
-      Navigate("/home");
+      const loggedIn = response.data;
+
+      onSubmitProps.resetForm();
+
+      if (loggedIn) {
+        dispatch(
+          setLogin({
+            user: loggedIn.user,
+            token: loggedIn.token,
+          })
+        );
+        navigate("/home");
+      }
+    } catch (error) {
+      console.error(error);
     }
   };
 
@@ -101,6 +113,7 @@ const Form = () => {
     if (isLogin) await login(values, onSubmitProps);
     if (isRegister) await register(values, onSubmitProps);
   };
+
   return (
     <Formik
       onSubmit={handleFormSubmit}
