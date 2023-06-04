@@ -59,7 +59,7 @@ app.use("/posts", postRoutes);
 //mongoose setup
 const PORT = process.env.PORT || 6001;
 mongoose
-  .connect("mongodb://0.0.0.0:27017/Social-Media")
+  .connect(process.env.MONGO_URL)
   .then(() => {
     app.listen(PORT, () => console.log(`server running on port ${PORT}`));
   })
